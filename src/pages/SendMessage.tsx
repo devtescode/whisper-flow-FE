@@ -39,26 +39,26 @@ const SendMessage = () => {
 
   // Handle Google OAuth login
   const handleGoogleLogin = async (response: CredentialResponse) => {
-  try {
-    if (response.credential) {
-      // Decode the JWT credential to get user info
-      const decoded: any = JSON.parse(atob(response.credential.split(".")[1]));
+    try {
+      if (response.credential) {
+        // Decode the JWT credential to get user info
+        const decoded: any = JSON.parse(atob(response.credential.split(".")[1]));
 
-      // Save name, email, profile picture, and Google ID
-      setSender({
-        name: decoded.name,
-        email: decoded.email,
-        picture: decoded.picture,
-        googleId: decoded.sub, // unique Google user ID
-      });
+        // Save name, email, profile picture, and Google ID
+        setSender({
+          name: decoded.name,
+          email: decoded.email,
+          picture: decoded.picture,
+          googleId: decoded.sub, // unique Google user ID
+        });
 
-      toast.success(`Logged in as ${decoded.name}`);
+        toast.success(`Logged in as ${decoded.name}`);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Google login failed");
     }
-  } catch (err) {
-    console.error(err);
-    toast.error("Google login failed");
-  }
-};
+  };
 
 
   // Handle sending message
@@ -90,7 +90,13 @@ const SendMessage = () => {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   if (!link) {
     return (
