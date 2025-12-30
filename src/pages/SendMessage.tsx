@@ -41,24 +41,39 @@ const SendMessage = () => {
   const handleGoogleLogin = async (response: CredentialResponse) => {
     try {
       if (response.credential) {
-        // Decode the JWT credential to get user info
-        const decoded: any = JSON.parse(atob(response.credential.split(".")[1]));
+        const decoded: any = JSON.parse(
+          atob(response.credential.split(".")[1])
+        );
 
-        // Save name, email, profile picture, and Google ID
-        setSender({
+        const googleUser = {
           name: decoded.name,
           email: decoded.email,
           picture: decoded.picture,
-          googleId: decoded.sub, // unique Google user ID
-        });
+          googleId: decoded.sub,
+        };
 
-        toast.success(`Logged in as ${decoded.name}`);
+        // Save to state
+        setSender(googleUser);
+
+        // ✅ Persist login
+        localStorage.setItem("googleUser", JSON.stringify(googleUser));
+
+        // toast.success(`Logged in as ${decoded.name}`);
       }
     } catch (err) {
       console.error(err);
       toast.error("Google login failed");
     }
   };
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("googleUser");
+
+    if (storedUser) {
+      setSender(JSON.parse(storedUser));
+    }
+  }, []);
+
 
 
   // Handle sending message
@@ -67,28 +82,53 @@ const SendMessage = () => {
       toast.error("Please write a message");
       return;
     }
+
     if (!link) return;
-    if (!sender) {
-      toast.error("Please login with Google to send a message");
-      return;
-    }
+
+    // 🔁 Try to reuse saved Google login
+    const storedGoogleUser = localStorage.getItem("googleUser");
+    const activeSender = sender || (storedGoogleUser ? JSON.parse(storedGoogleUser) : null);
 
     setIsSending(true);
-    try {
-      await axios.post(`http://localhost:3000/link/u/${publicId}/messages`, {
-        content: message.trim(),
-        sender, // automatically includes name & email
-      });
 
-      setIsSending(false);
+    try {
+      await axios.post(
+        `http://localhost:3000/link/u/${publicId}/messages`,
+        {
+          content: message.trim(),
+
+          // ✅ Only send sender if it exists (Google user)
+          sender: activeSender
+            ? {
+              name: activeSender.name,
+              email: activeSender.email,
+              picture: activeSender.picture,
+              googleId: activeSender.googleId,
+            }
+            : null,
+        }
+      );
+
       setIsSent(true);
+      setMessage("");
+
       toast.success("Message sent successfully!");
     } catch (err: any) {
       console.error(err);
-      setIsSending(false);
       toast.error(err.response?.data?.error || "Failed to send message");
+    } finally {
+      setIsSending(false);
     }
   };
+
+  // useEffect(() => {
+  //   const storedUser = localStorage.getItem("googleUser");
+  //   if (storedUser && !sender) {
+  //     setSender(JSON.parse(storedUser));
+  //   }
+  // }, []);
+
+
 
   if (loading) {
     return (
@@ -115,10 +155,10 @@ const SendMessage = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <Check className="w-16 h-16 text-primary mx-auto mb-4" />
+          <Check className="w-16 h-16 text-primary mx-auto mb-3" />
           <h1 className="text-2xl font-bold mb-3">Message Sent!</h1>
-          <p>Your anonymous message has been delivered successfully.</p>
-          <Button onClick={() => { setIsSent(false); setMessage(""); setSender(null); }}>Send Another Message</Button>
+          <p className="mb-1">Your anonymous message has been delivered successfully.</p>
+          <Button onClick={() => { setIsSent(false); setMessage(""); }}>Send Another Message</Button>
         </div>
       </div>
     );
@@ -131,6 +171,8 @@ const SendMessage = () => {
           <MessageSquare className="w-16 h-16 text-primary mx-auto mb-4" />
           <h1 className="text-3xl font-bold mb-3">Send an Anonymous Message</h1>
           <p>to <span className="text-primary">{link.nickname}</span></p>
+
+
         </div>
 
         <div className="glass-card p-8 md:p-10 shadow-card">
@@ -142,7 +184,18 @@ const SendMessage = () => {
               />
             ) : (
               <p className="text-sm text-muted-foreground">
-                Logged in as <strong>{sender.name}</strong>
+                {/* Logged in as <strong>{sender.name}</strong> */}
+                {/* <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    localStorage.removeItem("googleUser");
+                    setSender(null);
+                    toast.info("Logged out");
+                  }}
+                >
+                  Logout
+                </Button> */}
               </p>
             )}
 

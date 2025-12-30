@@ -127,14 +127,14 @@ const AdminDashboard = () => {
     const link = links.find(l => l.id === linkId);
     if (!link) return;
 
-    const nextAction = link.isActive ? "activate" : "block";
+    const nextAction = link.isActive ? "block" : "activate";
 
     toast(
       `Are you sure you want to ${nextAction} this link?`,
       {
         description: link.isActive
-          ? "Users will be able to send messages again."
-          : "Users will NOT be able to send messages.",
+          ? "Users will NOT be able to send messages."
+          : "Users will be able to send messages again.",
 
         action: {
           label: "Yes",
@@ -171,8 +171,8 @@ const AdminDashboard = () => {
 
       toast.success(
         wasActive
-          ? "Link activated successfully"
-          : "Link blocked successfully"
+          ? "Link blocked successfully"
+          : "Link activated successfully"
       );
     } catch (err) {
       console.error(err);
@@ -189,12 +189,51 @@ const AdminDashboard = () => {
   };
 
 
-
+  const [selectedSender, setSelectedSender] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const filteredMessages = messages.filter(msg =>
     msg.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
     msg.nickname?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  const groupedMessages = filteredMessages.reduce((acc: any, msg) => {
+    const key = msg.senderEmail || msg.senderIp || "anonymous";
+
+    if (!acc[key]) {
+      acc[key] = {
+        senderName: msg.senderName || "Anonymous",
+        senderEmail: msg.senderEmail,
+        senderPicture: msg.senderPicture,
+        senderIp: msg.senderIp,
+        messages: [],
+      };
+    }
+
+    acc[key].messages.push(msg);
+    return acc;
+  }, {});
+
+
+
+  const [activeNickname, setActiveNickname] = useState<any>(null);
+  const nicknameMap = filteredMessages.reduce((acc: any, msg) => {
+    const key = msg.nickname || "Unknown";
+
+    if (!acc[key]) {
+      acc[key] = {
+        nickname: key,
+        messages: [],
+      };
+    }
+
+    acc[key].messages.push(msg);
+    return acc;
+  }, {});
+
+  const nicknameGroups = Object.values(nicknameMap);
+
+
+
 
 
 
@@ -289,7 +328,7 @@ const AdminDashboard = () => {
                       <CheckCircle className="w-6 h-6 text-primary" />
                     </div>
                     <div>
-                      <p className="text-3xl font-bold">{links.filter(l => l.isActive).length}</p>
+                      <p className="text-3xl font-bold">{links.filter(l => !l.isActive).length}</p>
                       <p className="text-sm text-muted-foreground">Blocked Links</p>
                     </div>
                   </div>
@@ -341,36 +380,91 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              {filteredMessages.map((msg) => (
-                <div key={msg.id} className="glass-card p-5">
-                  <div className="flex justify-between items-start gap-4 mb-3">
-                    <p className="text-foreground flex-1">{msg.content}</p>
-                  </div>
+              <div className="space-y-4">
+                {nicknameGroups.map((group: any) => (
+                  <div
+                    key={group.nickname}
+                    className="glass-card p-5 flex justify-between items-center"
+                  >
+                    <div>
+                      <p className="font-semibold text-lg">{group.nickname}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {group.messages.length} message(s)
+                      </p>
+                    </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-3 border-t border-border/50 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1.5">
-                      <Mail className="w-3.5 h-3.5" />
-                      <span>{msg.senderEmail || "Not provided"}</span>
+                    <Button
+                      size="sm"
+                      onClick={() => setActiveNickname(group)}
+                    >
+                      View
+                    </Button>
+                  </div>
+                ))}
+              </div>
+
+
+              {activeNickname && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+
+                  {/* Blur overlay */}
+                  <div
+                    className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                    onClick={() => setActiveNickname(null)}
+                  />
+
+                  {/* Modal */}
+                  <div className="relative bg-background rounded-xl w-full max-w-4xl p-6 shadow-xl z-[10000]">
+                    <h2 className="text-xl font-semibold mb-7">
+                      Messages sent to <span className="text-primary">{activeNickname.nickname}</span>
+                    </h2>
+
+                    <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+                      {activeNickname.messages.map((msg: any) => (
+                        <div key={msg.id} className="glass-card p-4">
+
+                          {/* Sender Info */}
+                          <div className="flex items-center gap-3 mb-2">
+                            {msg.senderPicture && (
+                              <img
+                                src={msg.senderPicture}
+                                className="w-8 h-8 rounded-full"
+                                alt="Profile"
+                              />
+                            )}
+
+                            <div>
+                              <p className="font-medium">
+                                {msg.senderName || "Anonymous"}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {msg.senderEmail || "No email"} • IP {msg.senderIp}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Message */}
+                          <p className="text-sm">{msg.content}</p>
+
+                          <p className="text-xs text-muted-foreground mt-2">
+                            {formatDate(msg.createdAt)}
+                          </p>
+                        </div>
+                      ))}
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <User className="w-3.5 h-3.5" />
-                      {msg.senderPicture && (
-                        <img src={msg.senderPicture} alt="Profile" className="w-6 h-6 rounded-full" />
-                      )}
-                      <span>{msg.senderName || "Not provided"}</span>
-                      <span>IP - {msg.senderIp || "Unknown"}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5" />
-                      <span>{formatDate(msg.createdAt)}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Link className="w-3.5 h-3.5" />
-                      <span>{msg.nickname || "Unknown"}</span>
+
+                    <div className="flex justify-end mt-5">
+                      <Button variant="outline" onClick={() => setActiveNickname(null)}>
+                        Close
+                      </Button>
                     </div>
                   </div>
                 </div>
-              ))}
+              )}
+
+
+
+
 
 
             </div>
@@ -437,30 +531,17 @@ const AdminDashboard = () => {
                               </div>
                             </div>
                           </div>
-
-                          {/* <Button
-                            variant="ghost"
-                            size="sm"
-                            className={
-                              link.isActive
-                                ? "text-destructive hover:text-destructive hover:bg-destructive/10"
-                                : "text-primary hover:text-primary hover:bg-primary/10"
-                            }
-                            onClick={() => handleToggleLinkStatus(link.id)}
-                          >
-                            {link.isActive ? "Block" : "Activate"}
-                          </Button> */}
                           <Button
                             variant="ghost"
                             size="sm"
                             className={
                               link.isActive
-                                ? "text-destructive hover:bg-destructive/10"
-                                : "text-primary hover:bg-primary/10"
+                                ? "text-primary hover:bg-primary/10"
+                                : "text-destructive hover:bg-destructive/10"
                             }
                             onClick={() => handleToggleLinkStatus(link.id)}
                           >
-                            {link.isActive ? "Block" : "Activate"}
+                            {link.isActive ? "Activate" : " Block"}
                           </Button>
 
                         </div>
