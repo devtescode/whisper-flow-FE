@@ -77,6 +77,53 @@ const SendMessage = () => {
 
 
   // Handle sending message
+  // const handleSend = async () => {
+  //   if (!message.trim()) {
+  //     toast.error("Please write a message");
+  //     return;
+  //   }
+
+  //   if (!link) return;
+
+  //   // 🔁 Try to reuse saved Google login
+  //   const storedGoogleUser = localStorage.getItem("googleUser");
+  //   const activeSender = sender || (storedGoogleUser ? JSON.parse(storedGoogleUser) : null);
+
+  //   setIsSending(true);
+
+  //   try {
+  //     await axios.post(
+  //       `https://whisper-flow-be.onrender.com/link/u/${publicId}/messages`,
+  //       {
+  //         content: message.trim(),
+
+  //         // ✅ Only send sender if it exists (Google user)
+  //         sender: activeSender
+  //           ? {
+  //             name: activeSender.name,
+  //             email: activeSender.email,
+  //             picture: activeSender.picture,
+  //             googleId: activeSender.googleId,
+  //           }
+  //           : null,
+  //       }
+  //     );
+
+  //     setIsSent(true);
+  //     setMessage("");
+
+  //     toast.success("Message sent successfully!");
+  //   } catch (err: any) {
+  //     console.error(err);
+  //     toast.error(err.response?.data?.error || "Failed to send message");
+  //   } finally {
+  //     setIsSending(false);
+  //   }
+  // };
+
+
+
+  // Handle sending message
   const handleSend = async () => {
     if (!message.trim()) {
       toast.error("Please write a message");
@@ -85,9 +132,14 @@ const SendMessage = () => {
 
     if (!link) return;
 
-    // 🔁 Try to reuse saved Google login
+    // Check if user is logged in
     const storedGoogleUser = localStorage.getItem("googleUser");
     const activeSender = sender || (storedGoogleUser ? JSON.parse(storedGoogleUser) : null);
+
+    if (!activeSender) {
+      toast.error("Please login with Google before sending a message");
+      return;
+    }
 
     setIsSending(true);
 
@@ -96,16 +148,12 @@ const SendMessage = () => {
         `https://whisper-flow-be.onrender.com/link/u/${publicId}/messages`,
         {
           content: message.trim(),
-
-          // ✅ Only send sender if it exists (Google user)
-          sender: activeSender
-            ? {
-              name: activeSender.name,
-              email: activeSender.email,
-              picture: activeSender.picture,
-              googleId: activeSender.googleId,
-            }
-            : null,
+          sender: {
+            name: activeSender.name,
+            email: activeSender.email,
+            picture: activeSender.picture,
+            googleId: activeSender.googleId,
+          },
         }
       );
 
