@@ -120,21 +120,21 @@ const AdminDashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
-  
+
 
 
   const handleToggleLinkStatus = (linkId: string) => {
     const link = links.find(l => l.id === linkId);
     if (!link) return;
 
-    const action = link.isActive ? "block" : "activate";
+    const nextAction = link.isActive ? "activate" : "block";
 
     toast(
-      `Are you sure you want to ${action} this link?`,
+      `Are you sure you want to ${nextAction} this link?`,
       {
         description: link.isActive
-          ? "Users will NOT be able to send messages."
-          : "Users will be able to send messages again.",
+          ? "Users will be able to send messages again."
+          : "Users will NOT be able to send messages.",
 
         action: {
           label: "Yes",
@@ -150,9 +150,12 @@ const AdminDashboard = () => {
   };
 
 
+
   const confirmToggle = async (linkId: string) => {
     const link = links.find(l => l.id === linkId);
     if (!link) return;
+
+    const wasActive = link.isActive; // store BEFORE toggle
 
     try {
       // Optimistic update
@@ -167,7 +170,9 @@ const AdminDashboard = () => {
       );
 
       toast.success(
-        link.isActive ? "Link blocked successfully" : "Link activated successfully"
+        wasActive
+          ? "Link activated successfully"
+          : "Link blocked successfully"
       );
     } catch (err) {
       console.error(err);
@@ -185,14 +190,21 @@ const AdminDashboard = () => {
 
 
 
+
   const filteredMessages = messages.filter(msg =>
     msg.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    msg.senderEmail?.toLowerCase().includes(searchTerm.toLowerCase())
+    msg.nickname?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+
+
+
+
   const filteredLinks = links.filter(link =>
-    link.nickname.toLowerCase().includes(searchTerm.toLowerCase())
+    link.nickname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    link.publicId.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
 
   const getLinkForMessage = (linkId: string) => {
     return links.find(l => l.id === linkId);
@@ -284,24 +296,33 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              <div className="glass-card p-6">
+              <div className="glass-card p-6 h-80 overflow-y-auto">
                 <h2 className="font-semibold mb-4">Recent Activity</h2>
-                {messages.slice(0, 5).length === 0 ? (
+
+                {messages.length === 0 ? (
                   <p className="text-muted-foreground text-center py-8">No activity yet</p>
                 ) : (
                   <div className="space-y-3">
                     {messages.slice(0, 5).map((msg) => (
-                      <div key={msg.id} className="flex items-center gap-4 p-3 rounded-lg bg-secondary/30">
+                      <div
+                        key={msg.id}
+                        className="flex items-center gap-4 p-3 rounded-lg bg-secondary/30"
+                      >
                         <MessageSquare className="w-4 h-4 text-primary flex-shrink-0" />
+
                         <div className="flex-1 min-w-0">
                           <p className="text-sm truncate">{msg.content}</p>
-                          <p className="text-xs text-muted-foreground">{formatDate(msg.createdAt)}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Sent to: <span className="font-medium">{msg.nickname}</span> • {formatDate(msg.createdAt)}
+                          </p>
                         </div>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
+
+
             </div>
           )}
 
@@ -362,7 +383,7 @@ const AdminDashboard = () => {
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search links by nickname..."
+                    placeholder="Search links by nickname or public ID..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
