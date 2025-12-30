@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GlowOrb } from "@/components/GlowOrb";
 import { Footer } from "@/components/Footer";
-import { MessageSquare, Copy, Check, Link, Inbox, Shield, Sparkles } from "lucide-react";
+import { MessageSquare, Copy, Check, Link, Inbox, Shield, Sparkles, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
 
@@ -211,6 +211,13 @@ if (loading) {
                 >
                   {copiedPublic ? <Check className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4" />}
                 </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => window.open(createdLink.publicUrl, "_blank")}
+                >
+                  <ExternalLink className="w-4 h-4" />
+                </Button>
               </div>
             </div>
 
@@ -232,6 +239,13 @@ if (loading) {
                   onClick={() => copyToClipboard(createdLink.inboxUrl, "inbox")}
                 >
                   {copiedInbox ? <Check className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4" />}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => window.open(createdLink.inboxUrl, "_blank")}
+                >
+                  <ExternalLink className="w-4 h-4" />
                 </Button>
               </div>
             </div>
