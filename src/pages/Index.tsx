@@ -59,12 +59,50 @@ const Index = () => {
   };
 
 
+  const [isCreating, setIsCreating] = useState(false);
+  // const handleCreateLink = async () => {
+  //   if (!nickname.trim()) {
+  //     toast.error("Please enter a nickname");
+  //     return;
+  //   }
+
+  //   try {
+  //     const response = await axios.post("https://whisper-flow-be.onrender.com/link/create", {
+  //       nickname: nickname.trim(),
+  //     });
+
+  //     const data = response.data;
+  //     const baseUrl = window.location.origin;
+
+  //     const linkData: LinkData = {
+  //       publicUrl: `${baseUrl}/u/${data.publicId}`,
+  //       inboxUrl: `${baseUrl}/inbox/${data.inboxId}`,
+  //       _id: data._id,
+  //       nickname: data.nickname,
+  //     };
+
+  //     console.log(linkData, "link data");
+
+  //     setCreatedLink(linkData);
+  //     localStorage.setItem("myAnonymousLink", JSON.stringify(linkData));
+
+  //     // Fetch initial messages
+  //     setMessages(data.messages || []);
+
+  //     toast.success("Your anonymous link has been created!");
+  //   } catch (error: any) {
+  //     console.error(error);
+  //     toast.error(error.response?.data?.error || "Failed to create link");
+  //   }
+  // };
 
   const handleCreateLink = async () => {
     if (!nickname.trim()) {
       toast.error("Please enter a nickname");
       return;
     }
+
+    setIsCreating(true); // start loading
 
     try {
       const response = await axios.post("https://whisper-flow-be.onrender.com/link/create", {
@@ -81,20 +119,20 @@ const Index = () => {
         nickname: data.nickname,
       };
 
-      console.log(linkData, "link data");
-
       setCreatedLink(linkData);
       localStorage.setItem("myAnonymousLink", JSON.stringify(linkData));
 
-      // Fetch initial messages
       setMessages(data.messages || []);
 
       toast.success("Your anonymous link has been created!");
     } catch (error: any) {
       console.error(error);
       toast.error(error.response?.data?.error || "Failed to create link");
+    } finally {
+      setIsCreating(false); // stop loading
     }
   };
+
 
   const copyToClipboard = async (text: string, type: "public" | "inbox") => {
     await navigator.clipboard.writeText(text);
@@ -123,13 +161,13 @@ const Index = () => {
 
 
 
-if (loading) {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-    </div>
-  );
-}
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
 
   return (
@@ -174,11 +212,17 @@ if (loading) {
                 <Button
                   variant="hero"
                   size="xl"
-                  className="w-full"
+                  className="w-full flex items-center justify-center gap-2"
                   onClick={handleCreateLink}
+                  disabled={isCreating} // prevent multiple clicks
                 >
-                  Create My Anonymous Link
+                  {isCreating ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    "Create My Anonymous Link"
+                  )}
                 </Button>
+
               </div>
             </div>
           </div>
