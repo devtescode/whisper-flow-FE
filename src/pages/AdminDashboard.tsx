@@ -40,6 +40,7 @@ const AdminDashboard = () => {
   const [links, setLinks] = useState<AnonymousLink[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loadingLinks, setLoadingLinks] = useState(true);
 
   useEffect(() => {
     const isAdmin = sessionStorage.getItem("isAdmin");
@@ -50,6 +51,22 @@ const AdminDashboard = () => {
 
     refreshData();
   }, [navigate]);
+
+
+  useEffect(() => {
+    const fetchLinks = async () => {
+      try {
+        const res = await axios.get("http://localhost:3000/admin/getLinks");
+        setLinks(res.data);
+      } catch (err) {
+        console.error("Failed to fetch links", err);
+      } finally {
+        setLoadingLinks(false);
+      }
+    };
+
+    fetchLinks();
+  }, []);
 
   const refreshData = () => {
     setLinks(getAllLinks());
@@ -64,17 +81,12 @@ const AdminDashboard = () => {
     navigate("/admin");
   };
 
-  const handleDeleteMessage = (id: string) => {
-    deleteMessage(id);
-    refreshData();
-    toast.success("Message deleted");
-  };
 
-  const handleToggleLinkStatus = (id: string) => {
-    toggleLinkStatus(id);
-    refreshData();
-    toast.success("Link status updated");
-  };
+  // const handleToggleLinkStatus = (id: string) => {
+  //   toggleLinkStatus(id);
+  //   refreshData();
+  //   toast.success("Link status updated");
+  // };
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
@@ -107,6 +119,71 @@ const AdminDashboard = () => {
     const interval = setInterval(fetchMessages, 10000);
     return () => clearInterval(interval);
   }, []);
+
+  
+
+
+  const handleToggleLinkStatus = (linkId: string) => {
+    const link = links.find(l => l.id === linkId);
+    if (!link) return;
+
+    const action = link.isActive ? "block" : "activate";
+
+    toast(
+      `Are you sure you want to ${action} this link?`,
+      {
+        description: link.isActive
+          ? "Users will NOT be able to send messages."
+          : "Users will be able to send messages again.",
+
+        action: {
+          label: "Yes",
+          onClick: () => confirmToggle(linkId),
+        },
+
+        cancel: {
+          label: "Cancel",
+          onClick: () => toast.info("Action cancelled"),
+        },
+      }
+    );
+  };
+
+
+  const confirmToggle = async (linkId: string) => {
+    const link = links.find(l => l.id === linkId);
+    if (!link) return;
+
+    try {
+      // Optimistic update
+      setLinks(prev =>
+        prev.map(l =>
+          l.id === linkId ? { ...l, isActive: !l.isActive } : l
+        )
+      );
+
+      await axios.patch(
+        `http://localhost:3000/admin/links/${linkId}/toggle`
+      );
+
+      toast.success(
+        link.isActive ? "Link blocked successfully" : "Link activated successfully"
+      );
+    } catch (err) {
+      console.error(err);
+
+      // rollback
+      setLinks(prev =>
+        prev.map(l =>
+          l.id === linkId ? { ...l, isActive: !l.isActive } : l
+        )
+      );
+
+      toast.error("Failed to update link status");
+    }
+  };
+
+
 
   const filteredMessages = messages.filter(msg =>
     msg.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -201,7 +278,7 @@ const AdminDashboard = () => {
                     </div>
                     <div>
                       <p className="text-3xl font-bold">{links.filter(l => l.isActive).length}</p>
-                      <p className="text-sm text-muted-foreground">Active Links</p>
+                      <p className="text-sm text-muted-foreground">Blocked Links</p>
                     </div>
                   </div>
                 </div>
@@ -301,19 +378,25 @@ const AdminDashboard = () => {
               ) : (
                 <div className="space-y-4">
                   {filteredLinks.map((link) => {
-                    const messageCount = messages.filter(m => m.linkId === link.id).length;
+                    const messageCount = messages.filter(
+                      m => String(m.linkId) === String(link.id)
+                    ).length;
+
                     return (
                       <div key={link.id} className="glass-card p-5">
                         <div className="flex justify-between items-start gap-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
                               <span className="font-semibold">{link.nickname}</span>
-                              <span className={`px-2 py-0.5 rounded-full text-xs ${link.isActive
-                                ? "bg-primary/20 text-primary"
-                                : "bg-destructive/20 text-destructive"
-                                }`}>
+                              <span
+                                className={`px-2 py-0.5 rounded-full text-xs ${link.isActive
+                                  ? "bg-primary/20 text-primary"
+                                  : "bg-destructive/20 text-destructive"
+                                  }`}
+                              >
                                 {link.isActive ? "Active" : "Blocked"}
                               </span>
+
                             </div>
 
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs text-muted-foreground">
@@ -321,10 +404,12 @@ const AdminDashboard = () => {
                                 <MessageSquare className="w-3.5 h-3.5" />
                                 <span>{messageCount} messages</span>
                               </div>
+
                               <div className="flex items-center gap-1.5">
                                 <Clock className="w-3.5 h-3.5" />
                                 <span>{formatDate(link.createdAt)}</span>
                               </div>
+
                               <div className="flex items-center gap-1.5 col-span-2 md:col-span-1">
                                 <Link className="w-3.5 h-3.5" />
                                 <span className="font-mono truncate">{link.publicId}</span>
@@ -332,33 +417,38 @@ const AdminDashboard = () => {
                             </div>
                           </div>
 
-                          <Button
+                          {/* <Button
                             variant="ghost"
                             size="sm"
-                            className={link.isActive
-                              ? "text-destructive hover:text-destructive hover:bg-destructive/10"
-                              : "text-primary hover:text-primary hover:bg-primary/10"
+                            className={
+                              link.isActive
+                                ? "text-destructive hover:text-destructive hover:bg-destructive/10"
+                                : "text-primary hover:text-primary hover:bg-primary/10"
                             }
                             onClick={() => handleToggleLinkStatus(link.id)}
                           >
-                            {link.isActive ? (
-                              <>
-                                <Ban className="w-4 h-4" />
-                                Block
-                              </>
-                            ) : (
-                              <>
-                                <CheckCircle className="w-4 h-4" />
-                                Activate
-                              </>
-                            )}
+                            {link.isActive ? "Block" : "Activate"}
+                          </Button> */}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className={
+                              link.isActive
+                                ? "text-destructive hover:bg-destructive/10"
+                                : "text-primary hover:bg-primary/10"
+                            }
+                            onClick={() => handleToggleLinkStatus(link.id)}
+                          >
+                            {link.isActive ? "Block" : "Activate"}
                           </Button>
+
                         </div>
                       </div>
                     );
                   })}
                 </div>
               )}
+
             </div>
           )}
         </div>

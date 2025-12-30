@@ -250,7 +250,7 @@ if (loading) {
                 {messages.length === 0 ? (
                   <div className="text-center py-6">
                     <p className="text-sm text-muted-foreground">
-                      No messages yet
+                      No messages yet today.
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
                       Share your public link to receive messages
