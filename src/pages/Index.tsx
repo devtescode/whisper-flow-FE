@@ -46,7 +46,8 @@ const Index = () => {
 
     try {
       const res = await axios.get(
-        `http://localhost:3000/link/messages/${linkId}`
+        // "http://localhost:3000
+        `https://whisper-flow-be.onrender.com/link/messages/${linkId}`
       );
 
       // ✅ READ THE CORRECT FIELD
@@ -66,7 +67,7 @@ const Index = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:3000/link/create", {
+      const response = await axios.post("https://whisper-flow-be.onrender.com/link/create", {
         nickname: nickname.trim(),
       });
 

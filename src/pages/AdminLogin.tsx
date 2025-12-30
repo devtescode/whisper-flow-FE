@@ -19,7 +19,7 @@ const AdminLogin = () => {
   useEffect(() => {
     const checkAdmin = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/admin/check");
+        const res = await axios.get("https://whisper-flow-be.onrender.com/admin/check");
         setAdminExists(res.data.exists);
       } catch (err) {
         console.error(err);
@@ -41,14 +41,14 @@ const AdminLogin = () => {
     try {
       if (!adminExists) {
         // Register first admin
-        await axios.post("http://localhost:3000/admin/register", { name, email, password });
+        await axios.post("https://whisper-flow-be.onrender.com/admin/register", { name, email, password });
         toast.success("Admin registered successfully! Please log in.");
         setAdminExists(true); // switch to login form
         setName("");
         setPassword("");
       } else {
         // Login
-        const res = await axios.post("http://localhost:3000/admin/login", { email, password });
+        const res = await axios.post("https://whisper-flow-be.onrender.com/admin/login", { email, password });
         sessionStorage.setItem("isAdmin", "true");
         sessionStorage.setItem("adminToken", res.data.token);
         toast.success("Welcome back, Admin!");

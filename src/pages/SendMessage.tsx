@@ -25,7 +25,7 @@ const SendMessage = () => {
     if (!publicId) return;
     const fetchLink = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/link/u/${publicId}`);
+        const res = await axios.get(`https://whisper-flow-be.onrender.com/link/u/${publicId}`);
         setLink(res.data);
       } catch (err) {
         console.error(err);
@@ -93,7 +93,7 @@ const SendMessage = () => {
 
     try {
       await axios.post(
-        `http://localhost:3000/link/u/${publicId}/messages`,
+        `https://whisper-flow-be.onrender.com/link/u/${publicId}/messages`,
         {
           content: message.trim(),
 

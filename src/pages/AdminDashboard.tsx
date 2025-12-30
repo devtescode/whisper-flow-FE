@@ -56,7 +56,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchLinks = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/admin/getLinks");
+        const res = await axios.get("https://whisper-flow-be.onrender.com/admin/getLinks");
         setLinks(res.data);
       } catch (err) {
         console.error("Failed to fetch links", err);
@@ -104,7 +104,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/admin/admingetMessages");
+        const res = await axios.get("https://whisper-flow-be.onrender.com/admin/admingetMessages");
         setMessages(res.data);
         console.log(res.data, "getmeaasge");
 
@@ -166,7 +166,7 @@ const AdminDashboard = () => {
       );
 
       await axios.patch(
-        `http://localhost:3000/admin/links/${linkId}/toggle`
+        `https://whisper-flow-be.onrender.com/admin/links/${linkId}/toggle`
       );
 
       toast.success(

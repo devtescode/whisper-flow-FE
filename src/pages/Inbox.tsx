@@ -34,7 +34,7 @@ const Inbox = () => {
 
     const fetchInbox = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/link/inbox/${inboxId}`);
+        const res = await axios.get(`https://whisper-flow-be.onrender.com/link/inbox/${inboxId}`);
         setLink(res.data);
         setMessages(res.data.messages || []);
       } catch (err) {
