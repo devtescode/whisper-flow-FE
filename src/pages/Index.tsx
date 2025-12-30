@@ -198,7 +198,7 @@ const Index = () => {
             <div className="glass-card p-8 md:p-10 shadow-card mt-8 animate-fade-up">
               <div className="space-y-4">
                 <div>
-                  <label className="text-start block text-sm font-medium mb-2 text-muted-foreground">
+                  <label className="text-start block font-medium mb-2 text-muted-foreground">
                     Your Nickname
                   </label>
                   <Input
