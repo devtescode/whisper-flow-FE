@@ -9,6 +9,7 @@ import Inbox from "./pages/Inbox";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
+import { InstallButton } from "./components/InstallButton";
 
 const queryClient = new QueryClient();
 
@@ -17,6 +18,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner position="top-center" theme="dark" />
+      <InstallButton />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
