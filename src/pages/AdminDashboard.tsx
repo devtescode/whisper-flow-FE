@@ -281,7 +281,6 @@ const AdminDashboard = () => {
         </header>
 
         <div className="max-w-7xl mx-auto px-6 py-8">
-          {/* Tabs */}
           <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
             {tabs.map((tab) => (
               <Button
@@ -421,7 +420,6 @@ const AdminDashboard = () => {
                       {activeNickname.messages.map((msg: any) => (
                         <div key={msg.id} className="glass-card p-4">
 
-                          {/* Sender Info */}
                           <div className="flex items-center gap-3 mb-2">
                             {msg.senderPicture && (
                               <img
@@ -441,7 +439,6 @@ const AdminDashboard = () => {
                             </div>
                           </div>
 
-                          {/* Message */}
                           <p className="text-sm">{msg.content}</p>
 
                           <p className="text-xs text-muted-foreground mt-2">
@@ -468,7 +465,6 @@ const AdminDashboard = () => {
             </div>
           )}
 
-          {/* Links Tab */}
           {activeTab === "links" && (
             <div className="animate-fade-in">
               <div className="glass-card p-6 mb-6">
