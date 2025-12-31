@@ -109,7 +109,6 @@ const Inbox = () => {
       <GlowOrb className="top-1/2 -right-48" size="lg" />
 
       <div className="relative z-10 max-w-3xl mx-auto px-6 pt-12">
-        {/* Header */}
         <div className="flex items-center justify-between mb-8 animate-fade-up">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
@@ -125,7 +124,6 @@ const Inbox = () => {
           </Button>
         </div>
 
-        {/* Link Management Card */}
         <div className="glass-card p-6 mb-8 animate-fade-up" style={{ animationDelay: "0.1s" }}>
           <h2 className="font-semibold mb-4 flex items-center gap-2">
             <Link className="w-4 h-4 text-primary" />
