@@ -262,7 +262,7 @@ const AdminDashboard = () => {
 
       <div className="relative z-10">
         {/* Header */}
-        <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-20">
+        <header className="fixed top-0 left-0 right-0 z-50 border-border/50 bg-card/50 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
@@ -273,6 +273,7 @@ const AdminDashboard = () => {
                 <p className="text-xs text-muted-foreground">Manage your platform</p>
               </div>
             </div>
+
             <Button variant="ghost" onClick={handleLogout}>
               <LogOut className="w-4 h-4" />
               Logout
@@ -280,7 +281,8 @@ const AdminDashboard = () => {
           </div>
         </header>
 
-        <div className="max-w-7xl mx-auto px-6 py-8">
+
+        <div className="max-w-7xl mx-auto px-6 py-8 mt-20">
           <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
             {tabs.map((tab) => (
               <Button
