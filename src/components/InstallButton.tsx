@@ -29,7 +29,7 @@ export function InstallButton() {
       onClick={handleInstallClick}
       className="px-4 py-2 rounded-lg bg-primary text-white"
     >
-      Install Whisper Flow
+      Install App
     </button>
   );
 }
