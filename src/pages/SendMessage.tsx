@@ -7,7 +7,7 @@ import { Footer } from "@/components/Footer";
 import { Send, MessageSquare, Check, AlertTriangle, Shield } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
-import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
+import { useGoogleLogin, GoogleLogin, CredentialResponse } from "@react-oauth/google";
 
 const SendMessage = () => {
   const { publicId } = useParams<{ publicId: string }>();
@@ -38,12 +38,49 @@ const SendMessage = () => {
   }, [publicId]);
 
   // Handle Google OAuth login
-  const handleGoogleLogin = async (response: CredentialResponse) => {
-    try {
-      if (response.credential) {
-        const decoded: any = JSON.parse(
-          atob(response.credential.split(".")[1])
+  // const handleGoogleLogin = async (response: CredentialResponse) => {
+  //   try {
+  //     if (response.credential) {
+  //       const decoded: any = JSON.parse(
+  //         atob(response.credential.split(".")[1])
+  //       );
+
+  //       const googleUser = {
+  //         name: decoded.name,
+  //         email: decoded.email,
+  //         picture: decoded.picture,
+  //         googleId: decoded.sub,
+  //       };
+
+  //       // Save to state
+  //       setSender(googleUser);
+
+  //       // ✅ Persist login
+  //       localStorage.setItem("googleUser", JSON.stringify(googleUser));
+
+  //       // toast.success(`Logged in as ${decoded.name}`);
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error("Google login failed");
+  //   }
+  // };
+
+
+  const loginWithGoogle = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        // Get user info from Google
+        const res = await fetch(
+          "https://www.googleapis.com/oauth2/v3/userinfo",
+          {
+            headers: {
+              Authorization: `Bearer ${tokenResponse.access_token}`,
+            },
+          }
         );
+
+        const decoded = await res.json();
 
         const googleUser = {
           name: decoded.name,
@@ -52,19 +89,21 @@ const SendMessage = () => {
           googleId: decoded.sub,
         };
 
-        // Save to state
         setSender(googleUser);
-
-        // ✅ Persist login
         localStorage.setItem("googleUser", JSON.stringify(googleUser));
 
-        // toast.success(`Logged in as ${decoded.name}`);
+        toast.success("Verified with Google");
+      } catch (err) {
+        console.error(err);
+        toast.error("Google verification failed");
       }
-    } catch (err) {
-      console.error(err);
-      toast.error("Google login failed");
-    }
-  };
+    },
+
+    onError: () => {
+      toast.error("Google verification failed");
+    },
+  });
+
 
   useEffect(() => {
     const storedUser = localStorage.getItem("googleUser");
@@ -223,27 +262,24 @@ const SendMessage = () => {
 
         <div className="glass-card p-8 md:p-10 shadow-card">
           <div className="space-y-6">
-            {!sender ? (
+            {/* {!sender ? (
               <GoogleLogin
                 onSuccess={handleGoogleLogin}
+                
                 onError={() => toast.error("Google login failed")}
               />
             ) : (
               <p className="text-sm text-muted-foreground">
-                {/* Logged in as <strong>{sender.name}</strong> */}
-                {/* <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    localStorage.removeItem("googleUser");
-                    setSender(null);
-                    toast.info("Logged out");
-                  }}
-                >
-                  Logout
-                </Button> */}
+              
               </p>
-            )}
+            )} */}
+            <button
+              onClick={() => loginWithGoogle()}
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-border bg-background hover:bg-secondary transition font-medium"
+            >
+              Verify
+            </button>
+
 
             <div>
               <label className="block text-sm font-medium mb-2">Your Message *</label>
