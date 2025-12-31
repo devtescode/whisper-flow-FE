@@ -92,7 +92,7 @@ const SendMessage = () => {
         setSender(googleUser);
         localStorage.setItem("googleUser", JSON.stringify(googleUser));
 
-        toast.success("Verified with Google");
+        toast.success("Verified successfully");
       } catch (err) {
         console.error(err);
         toast.error("Google verification failed");
