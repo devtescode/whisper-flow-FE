@@ -262,23 +262,18 @@ const SendMessage = () => {
 
         <div className="glass-card p-8 md:p-10 shadow-card">
           <div className="space-y-6">
-            {/* {!sender ? (
-              <GoogleLogin
-                onSuccess={handleGoogleLogin}
-                
-                onError={() => toast.error("Google login failed")}
-              />
+            {!sender ? (
+              <button
+                onClick={() => loginWithGoogle()}
+                className="w-50 mx-auto flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-border bg-background hover:bg-secondary transition font-medium"
+              >
+                Verify
+              </button>
             ) : (
               <p className="text-sm text-muted-foreground">
-              
+
               </p>
-            )} */}
-            <button
-              onClick={() => loginWithGoogle()}
-              className="w-50 mx-auto flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-border bg-background hover:bg-secondary transition font-medium"
-            >
-              Verify
-            </button>
+            )}
 
 
             <div>
