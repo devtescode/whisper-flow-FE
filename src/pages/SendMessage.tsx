@@ -172,13 +172,13 @@ const SendMessage = () => {
     if (!link) return;
 
     // Check if user is logged in
-    const storedGoogleUser = localStorage.getItem("googleUser");
-    const activeSender = sender || (storedGoogleUser ? JSON.parse(storedGoogleUser) : null);
+    // const storedGoogleUser = localStorage.getItem("googleUser");
+    // const activeSender = sender || (storedGoogleUser ? JSON.parse(storedGoogleUser) : null);
 
-    if (!activeSender) {
-      toast.error("You are to Verify as a sender");
-      return;
-    }
+    // if (!activeSender) {
+    //   toast.error("You are to Verify as a sender");
+    //   return;
+    // }
 
     setIsSending(true);
 
@@ -188,10 +188,10 @@ const SendMessage = () => {
         {
           content: message.trim(),
           sender: {
-            name: activeSender.name,
-            email: activeSender.email,
-            picture: activeSender.picture,
-            googleId: activeSender.googleId,
+            // name: activeSender.name,
+            // email: activeSender.email,
+            // picture: activeSender.picture,
+            // googleId: activeSender.googleId,
           },
         }
       );
@@ -262,7 +262,7 @@ const SendMessage = () => {
 
         <div className="glass-card p-8 md:p-10 shadow-card">
           <div className="space-y-6">
-            {!sender ? (
+            {/* {!sender ? (
               <button
                 onClick={() => loginWithGoogle()}
                 className="w-full mx-auto flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-border bg-background hover:bg-secondary transition font-medium"
@@ -273,7 +273,7 @@ const SendMessage = () => {
               <p className="text-sm text-muted-foreground">
 
               </p>
-            )}
+            )} */}
 
 
             <div>
