@@ -194,7 +194,6 @@ const Index = () => {
               Simple, secure, and completely private.
             </p>
 
-            {/* Create Link Form */}
             <div className="glass-card p-8 md:p-10 shadow-card mt-8 animate-fade-up">
               <div className="space-y-4">
                 <div>
