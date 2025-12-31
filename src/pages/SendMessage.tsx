@@ -176,7 +176,7 @@ const SendMessage = () => {
     const activeSender = sender || (storedGoogleUser ? JSON.parse(storedGoogleUser) : null);
 
     if (!activeSender) {
-      toast.error("Please login with Google before sending a message");
+      toast.error("You are to Verify as a sender");
       return;
     }
 
@@ -275,7 +275,7 @@ const SendMessage = () => {
             )} */}
             <button
               onClick={() => loginWithGoogle()}
-              className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-border bg-background hover:bg-secondary transition font-medium"
+              className="w-50 mx-auto flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-border bg-background hover:bg-secondary transition font-medium"
             >
               Verify
             </button>
