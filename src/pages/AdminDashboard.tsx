@@ -296,7 +296,6 @@ const AdminDashboard = () => {
             ))}
           </div>
 
-          {/* Dashboard Tab */}
           {activeTab === "dashboard" && (
             <div className="animate-fade-in">
               <div className="grid md:grid-cols-3 gap-6 mb-8">
@@ -365,7 +364,6 @@ const AdminDashboard = () => {
             </div>
           )}
 
-          {/* Messages Tab */}
           {activeTab === "messages" && (
             <div className="animate-fade-in">
               <div className="glass-card p-6 mb-6">
