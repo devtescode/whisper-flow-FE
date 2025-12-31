@@ -219,8 +219,6 @@ const SendMessage = () => {
           <MessageSquare className="w-16 h-16 text-primary mx-auto mb-4" />
           <h1 className="text-3xl font-bold mb-3">Send an Anonymous Message</h1>
           <p>to <span className="text-primary">{link.nickname}</span></p>
-
-
         </div>
 
         <div className="glass-card p-8 md:p-10 shadow-card">
