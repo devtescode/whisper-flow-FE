@@ -37,7 +37,6 @@ createRoot(document.getElementById("root")!).render(
   </GoogleOAuthProvider>
 );
 
-// ✅ REGISTER SERVICE WORKER (VERY IMPORTANT)
 registerSW({
   immediate: true,
   onOfflineReady() {
